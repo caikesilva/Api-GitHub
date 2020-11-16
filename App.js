@@ -92,25 +92,71 @@ const Item = ({ name, description, language, item}) => (
 
 
 const App = () => {
-  const salvarStorage = async () => {
+  const salvarStorageUsuario = async (users) => {
     try {
-      await AsyncStorage.setItem('@nome', nome)
+      const jsonUsers = JSON.stringify(users)
+      await AsyncStorage.setItem('@users', jsonUsers)
     }catch(ex){
       console.log("Erro");
     }
   }
   
-  const getStorage = async () => {
+  const getStorageUsuario = async () => {
     try {
-      const dadoNome = await AsyncStorage.getItem('@nome')
-      alteraNome(dadoNome)
+      const dadoUsuario = await AsyncStorage.getItem('@users')
+      if (dadoUsuario !== null){
+        alteraUsuario(JSON.parse(dadoUsuario))
+        alteraNome(JSON.parse(dadoUsuario))
+      }
     }catch(ex){
       console.log("Erro");
     }
   }
 
+  const salvarStorageRepositorio = async (r) => {
+    try {
+      const jsonRepositorios = JSON.stringify(r)
+      await AsyncStorage.setItem('@repositorios', jsonRepositorios)
+    } catch (ex) {
+      console.log("erro");
+    } 
+  }
+  
+  const getStorageRepositorio = async () => {
+    try {
+      const r = await AsyncStorage.getItem('@repositorios')
+      if (r !== null){
+        alteraRepositorio(JSON.parse(r))
+      }
+    } catch (error) {
+      console.log("erro get rep");
+    } 
+  }
+
+  const salvarStorageNome = async (nome) => {
+    try {
+      if (r !== null){
+        await AsyncStorage.setItem('@nome', JSON.stringify(nome))
+      }
+    } catch (error) {
+      console.log("Erro")
+    }
+    
+  }
+
+  const getStorageNome = async () => {
+    try {
+      const nome = await AsyncStorage.getItem('@nome')
+      alteraNome(nome);
+    } catch(e) {
+      console.log("Erro")
+    }
+  }
+
   useEffect(() => {
-    getStorage();
+    getStorageRepositorio();
+    getStorageUsuario();
+    getStorageNome();
   }, [])
  
   const [nome, alteraNome] = useState("")
@@ -129,7 +175,8 @@ const App = () => {
       const  res = await requisicao.json();
       alteraUsuario(res);
       buscaRepositorio();
-      salvarStorage();
+      salvarStorageNome(nome);
+      salvarStorageUsuario(res)
     }catch(ex){
       console.log("erro");
     }
@@ -142,6 +189,7 @@ const App = () => {
       );
       const  repos = await rep.json();
       alteraRepositorio(repos)
+      salvarStorageRepositorio(repos)
   }
 
   return (
