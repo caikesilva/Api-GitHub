@@ -135,8 +135,8 @@ const App = () => {
 
   const salvarStorageNome = async (nome) => {
     try {
-      if (r !== null){
-        await AsyncStorage.setItem('@nome', JSON.stringify(nome))
+      if (nome !== null){
+        await AsyncStorage.setItem('@nome', nome)
       }
     } catch (error) {
       console.log("Erro")
