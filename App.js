@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {View, ScrollView,FlatList, Pressable, Linking} from 'react-native'
-import styled from 'styled-components'
+import styled from 'styled-components';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Pagina = styled.View`
   flex: 1;
@@ -39,7 +40,7 @@ const Avatar = styled.Image`
   height: 200px;
   width: 200px;
   border-radius: 200px;
-  border: 1px solid #000; 
+  border: 1px #000; 
 `;
 
 const ImageGit = styled.Image`
@@ -89,15 +90,37 @@ const Item = ({ name, description, language, item}) => (
     </Pressable>
 );
 
+
 const App = () => {
+  const salvarStorage = async () => {
+    try {
+      await AsyncStorage.setItem('@nome', nome)
+    }catch(ex){
+      console.log("Erro");
+    }
+  }
+  
+  const getStorage = async () => {
+    try {
+      const dadoNome = await AsyncStorage.getItem('@nome')
+      alteraNome(dadoNome)
+    }catch(ex){
+      console.log("Erro");
+    }
+  }
+
+  useEffect(() => {
+    getStorage();
+  }, [])
+ 
   const [nome, alteraNome] = useState("")
   const [usuario, alteraUsuario] = useState({})
   const [repositorios , alteraRepositorio] = useState({})
-
+ 
   const renderItem = ({ item }) => (
     <Item name={item.name} description={item.description} language={item.language} item={item.html_url}/>
   ); 
-  
+
   const buscarUsuario = async () => {
     try {  
       const requisicao = await fetch(
@@ -106,6 +129,7 @@ const App = () => {
       const  res = await requisicao.json();
       alteraUsuario(res);
       buscaRepositorio();
+      salvarStorage();
     }catch(ex){
       console.log("erro");
     }
@@ -149,13 +173,11 @@ const App = () => {
             <TextoSubtitulo>{usuario.bio}</TextoSubtitulo>
             <TextoSubtitulo>{usuario.location} | {usuario.login}</TextoSubtitulo>
           </ViewTexto>
-          <View>
-            <FlatList
-              data={repositorios}
-              renderItem={renderItem}
-              keyExtractor={item => item.id}
-            />
-          </View>
+          <FlatList
+            data={repositorios}
+            renderItem={renderItem}
+            keyExtractor={item => item.id.toString()}
+          />
         </ScrollView>
       }
             
